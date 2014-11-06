@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SHA256", "SHA256\SHA256.csproj", "{E1B4B6E5-2CA3-4A4B-BD6F-F82B9E9F432B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashCheck", "SHA256\HashCheck.csproj", "{E1B4B6E5-2CA3-4A4B-BD6F-F82B9E9F432B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
