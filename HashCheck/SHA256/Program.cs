@@ -41,7 +41,7 @@ namespace HashCheck
 
             for (int i = 0; i < array.Length; i++)
             {
-                s += String.Format("{0:X2}", array[i]);
+                s = s + String.Format("{0:X2}", array[i]);
             }
 
             return s;
@@ -74,15 +74,18 @@ namespace HashCheck
                     SHA256 sha256 = SHA256Managed.Create();
                     newFile.hashes[(int)encryption.SHA256].bytes = sha256.ComputeHash(fileStream);
                     newFile.hashes[(int)encryption.SHA256].hashString = byteToString(newFile.hashes[(int)encryption.SHA256].bytes);
+                    fileStream.Close();
+
+                    FileStream fs = file.Open(FileMode.Open);
+                    fs.Position = 0;
 
                     newFile.hashes[(int)encryption.MD5] = new hash();
                     MD5 md5 = MD5.Create();
-                    newFile.hashes[(int)encryption.MD5].bytes = md5.ComputeHash(fileStream);
+                    newFile.hashes[(int)encryption.MD5].bytes = md5.ComputeHash(fs);
                     newFile.hashes[(int)encryption.MD5].hashString = byteToString(newFile.hashes[(int)encryption.MD5].bytes);
+                    fs.Close();
 
                     hashCollection[i] = newFile;
-
-                    fileStream.Close();
                     i++;
                 }
             }
