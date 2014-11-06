@@ -20,10 +20,11 @@ namespace HashCheck
         private void button1_Click(object sender, EventArgs e)
         {
             HashCheck.selectFiles();
-            
+            HashCheck.computeHash();
+
             foreach(HashCheck.file f in HashCheck.hashCollection)
             {
-                // f.fileName
+                lblFileName.Text = f.fileName;
                 lblSHA256.Text = f.hashes[(int)HashCheck.encryption.SHA256].hashString;
                 lblMD5.Text = f.hashes[(int)HashCheck.encryption.MD5].hashString;
             }
