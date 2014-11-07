@@ -20,7 +20,6 @@ namespace HashCheck
         private void button1_Click(object sender, EventArgs e)
         {
             HashCheck.selectFiles();
-            HashCheck.computeHash();
 
             foreach(HashCheck.file f in HashCheck.hashCollection)
             {

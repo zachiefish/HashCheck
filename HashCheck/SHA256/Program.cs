@@ -49,8 +49,9 @@ namespace HashCheck
         public static void selectFiles()
         {
             files = getFiles();
+            computeHash();
         }
-        public static void computeHash()
+        private static void computeHash()
         {
             if (files.Length > 0)
             {
@@ -98,7 +99,7 @@ namespace HashCheck
             if (dr == DialogResult.OK)
                 return fd.FileNames;
             else
-                return getFiles();            
+                return getFiles();
         }
     }
 }
