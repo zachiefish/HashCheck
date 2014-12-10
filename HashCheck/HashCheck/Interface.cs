@@ -24,24 +24,17 @@ namespace HashCheck
         {
             HashCheck.selectFiles();
 
-            if(md5Checked)
-                HashCheck.computeHash(HashCheck.hashAlgorithm.MD5);
-
-            if (sha256Checked)
-                HashCheck.computeHash(HashCheck.hashAlgorithm.SHA256);
-
-            if (HashCheck.filesToCheck != null)
+            foreach (HashFile h in HashCheck.filesToCheck)
             {
-                foreach (HashFile f in HashCheck.filesToCheck)
-                {
-                    lblFileName.Text = f.getFileName();
+                lblFileName.Text = h.getFileName();
 
-                    if (sha256Checked)
-                        lblSHA256.Text = f.getHashes()[(int)HashCheck.hashAlgorithm.SHA256].hashString;
+                if (sha256Checked)
+                    HashCheck.computeHash(Hash.hashAlgorithm.SHA256, h);
+                    lblSHA256.Text = h.getHashes()[(int)Hash.hashAlgorithm.SHA256].hashString;
 
-                    if (md5Checked)
-                        lblMD5.Text = f.getHashes()[(int)HashCheck.hashAlgorithm.MD5].hashString;
-                }
+                if (md5Checked)
+                    HashCheck.computeHash(Hash.hashAlgorithm.MD5, h);
+                    lblMD5.Text = h.getHashes()[(int)Hash.hashAlgorithm.MD5].hashString;
             }
         }
 

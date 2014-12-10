@@ -13,7 +13,11 @@ namespace HashCheck
         public HashFile()
         {
             fileName = "";
-            hashes = new Hash[Enum.GetNames(typeof(HashCheck.hashAlgorithm)).Length];
+            hashes = new Hash[Enum.GetNames(typeof(Hash.hashAlgorithm)).Length];
+            for (int i = 0; i < Enum.GetNames(typeof(Hash.hashAlgorithm)).Length; i++ )
+            {
+                hashes[i] = new Hash("",new byte[1]);
+            }
         }
         public string getFileName()
         {
@@ -23,13 +27,10 @@ namespace HashCheck
         {
             this.fileName = fileName;
         }
-        public void setHashes(Hash[] hashes)
+        public void setHash(Hash hash,Hash.hashAlgorithm algorithm)
         {
-            for (int i = 0; i < hashes.Length; i++)
-            {
-                this.hashes[i].hashString = hashes[i].hashString;
-                this.hashes[i].bytes = hashes[i].bytes;
-            }
+            this.hashes[(int)algorithm].hashString = hash.hashString;
+            this.hashes[(int)algorithm].bytes = hash.bytes;
         }
         public Hash[] getHashes()
         {
@@ -38,6 +39,8 @@ namespace HashCheck
     }
     public class Hash
     {
+        public enum hashAlgorithm { MD5, SHA256 }
+
         public Hash(string hashString, byte[] bytes)
         {
             this.bytes = bytes;
@@ -48,7 +51,6 @@ namespace HashCheck
     }
     public class HashCheck
     {
-        public enum hashAlgorithm { MD5, SHA256 }
         public static HashFile[] filesToCheck;
         private static string[] filePaths;
 
@@ -79,48 +81,46 @@ namespace HashCheck
         public static void selectFiles()
         {
             filePaths = getFiles();
-        }
-
-        public static void computeHash(hashAlgorithm algorithmStyle)
-        {
+            filesToCheck = new HashFile[filePaths.Length];
             if (filePaths.Length > 0)
             {
-                filesToCheck = new HashFile[filePaths.Length];
-
-                int i = 0;
-                foreach (String s in filePaths)
+                for (int i = 0; i < filePaths.Length; i++)
                 {
                     HashFile newFile = new HashFile();
-
-                    FileInfo file = new FileInfo(s);
-                    newFile.setFileName(file.Name);
-
-                    FileStream fileStream = file.Open(FileMode.Open);
-                    fileStream.Position = 0;
-
-                    HashAlgorithm algorithm;
-
-                    if (algorithmStyle == hashAlgorithm.SHA256)
-                    {
-                        algorithm = SHA256Managed.Create();
-                    }
-                    else if (algorithmStyle == hashAlgorithm.MD5)
-                    {
-                        algorithm = MD5.Create();
-                    }
-                    else // MD5 is most common
-                    {
-                        algorithm = MD5.Create();
-                    }
-
-                    Hash hash = new Hash(byteToString(algorithm.ComputeHash(fileStream)),algorithm.ComputeHash(fileStream));
-                    fileStream.Close();
-
+                    FileInfo file = new FileInfo(filePaths[i]);
+                    newFile.setFileName(file.FullName);
                     filesToCheck[i] = newFile;
-                    i++;
                 }
             }
-            return;
+        }
+
+        public static void computeHash(Hash.hashAlgorithm algorithmStyle, HashFile hashFile)
+        {
+                filesToCheck = new HashFile[filePaths.Length];
+
+                FileInfo file = new FileInfo(hashFile.getFileName());
+                FileStream fileStream = file.Open(FileMode.Open);
+                fileStream.Position = 0;
+
+                HashAlgorithm algorithm;
+
+                if (algorithmStyle == Hash.hashAlgorithm.SHA256)
+                {
+                    algorithm = SHA256Managed.Create();
+                }
+                else if (algorithmStyle == Hash.hashAlgorithm.MD5)
+                {
+                    algorithm = MD5.Create();
+                }
+                else // MD5 is most common
+                {
+                    algorithm = MD5.Create();
+                }
+
+                Hash hash = new Hash(byteToString(algorithm.ComputeHash(fileStream)),algorithm.ComputeHash(fileStream));
+                fileStream.Close();
+
+                hashFile.setHash(hash, algorithmStyle);
         }
         private static string[] getFiles()
         {
