@@ -5,22 +5,52 @@ using System.Windows.Forms;
 
 namespace HashCheck
 {
+    public class HashFile
+    {
+        private string fileName;
+        private Hash[] hashes;
+
+        public HashFile()
+        {
+            fileName = "";
+            hashes = new Hash[Enum.GetNames(typeof(HashCheck.hashAlgorithm)).Length];
+        }
+        public string getFileName()
+        {
+            return fileName;
+        }
+        public void setFileName(string fileName)
+        {
+            this.fileName = fileName;
+        }
+        public void setHashes(Hash[] hashes)
+        {
+            for (int i = 0; i < hashes.Length; i++)
+            {
+                this.hashes[i].hashString = hashes[i].hashString;
+                this.hashes[i].bytes = hashes[i].bytes;
+            }
+        }
+        public Hash[] getHashes()
+        {
+            return hashes;
+        }
+    }
+    public class Hash
+    {
+        public Hash(string hashString, byte[] bytes)
+        {
+            this.bytes = bytes;
+            this.hashString = hashString;
+        }
+        public string hashString;
+        public byte[] bytes;
+    }
     public class HashCheck
     {
-        public struct file
-        {
-            public string fileName;
-            public hash[] hashes;
-        }
-        public struct hash
-        {
-            public string hashString;
-            public byte[] bytes;
-        }
-        public enum encryption { MD5, SHA256 }
-        private static int ENC_COUNT = 2;
-        public static file[] hashCollection;
-        private static string[] files;
+        public enum hashAlgorithm { MD5, SHA256 }
+        public static HashFile[] filesToCheck;
+        private static string[] filePaths;
 
         public static bool run;
 
@@ -32,7 +62,7 @@ namespace HashCheck
             i.ShowDialog();
 
             if (args.Length > 0)
-                files = args;
+                filePaths = args;
 
         }
         public static string byteToString(byte[] array)
@@ -48,45 +78,45 @@ namespace HashCheck
         }
         public static void selectFiles()
         {
-            files = getFiles();
-            computeHash();
+            filePaths = getFiles();
         }
-        private static void computeHash()
+
+        public static void computeHash(hashAlgorithm algorithmStyle)
         {
-            if (files.Length > 0)
+            if (filePaths.Length > 0)
             {
-                hashCollection = new file[files.Length];
+                filesToCheck = new HashFile[filePaths.Length];
 
                 int i = 0;
-                foreach (String s in files)
+                foreach (String s in filePaths)
                 {
-                    file newFile = new file();
+                    HashFile newFile = new HashFile();
 
                     FileInfo file = new FileInfo(s);
-                    newFile.fileName = file.Name;
+                    newFile.setFileName(file.Name);
 
                     FileStream fileStream = file.Open(FileMode.Open);
                     fileStream.Position = 0;
 
-                    // Compute the hash of the fileStream.
-                    newFile.hashes = new hash[ENC_COUNT]; // only two modes of encryption
+                    HashAlgorithm algorithm;
 
-                    newFile.hashes[(int)encryption.SHA256] = new hash();
-                    SHA256 sha256 = SHA256Managed.Create();
-                    newFile.hashes[(int)encryption.SHA256].bytes = sha256.ComputeHash(fileStream);
-                    newFile.hashes[(int)encryption.SHA256].hashString = byteToString(newFile.hashes[(int)encryption.SHA256].bytes);
+                    if (algorithmStyle == hashAlgorithm.SHA256)
+                    {
+                        algorithm = SHA256Managed.Create();
+                    }
+                    else if (algorithmStyle == hashAlgorithm.MD5)
+                    {
+                        algorithm = MD5.Create();
+                    }
+                    else // MD5 is most common
+                    {
+                        algorithm = MD5.Create();
+                    }
+
+                    Hash hash = new Hash(byteToString(algorithm.ComputeHash(fileStream)),algorithm.ComputeHash(fileStream));
                     fileStream.Close();
 
-                    FileStream fs = file.Open(FileMode.Open);
-                    fs.Position = 0;
-
-                    newFile.hashes[(int)encryption.MD5] = new hash();
-                    MD5 md5 = MD5.Create();
-                    newFile.hashes[(int)encryption.MD5].bytes = md5.ComputeHash(fs);
-                    newFile.hashes[(int)encryption.MD5].hashString = byteToString(newFile.hashes[(int)encryption.MD5].bytes);
-                    fs.Close();
-
-                    hashCollection[i] = newFile;
+                    filesToCheck[i] = newFile;
                     i++;
                 }
             }
