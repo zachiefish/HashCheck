@@ -39,7 +39,7 @@ namespace HashCheck
     }
     public class Hash
     {
-        public enum hashAlgorithm { MD5, SHA256 }
+        public enum hashAlgorithm { MD5, SHA256, SHA512 }
 
         public Hash(string hashString, byte[] bytes)
         {
@@ -103,10 +103,13 @@ namespace HashCheck
                 fileStream.Position = 0;
 
                 HashAlgorithm algorithm;
-
-                if (algorithmStyle == Hash.hashAlgorithm.SHA256)
+                if (algorithmStyle == Hash.hashAlgorithm.SHA512)
                 {
-                    algorithm = SHA256Managed.Create();
+                    algorithm = SHA512.Create();
+                }
+                else if (algorithmStyle == Hash.hashAlgorithm.SHA256)
+                {
+                    algorithm = SHA256.Create();
                 }
                 else if (algorithmStyle == Hash.hashAlgorithm.MD5)
                 {
